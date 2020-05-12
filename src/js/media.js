@@ -3,6 +3,7 @@
 // ==========================================================================
 
 import html5 from './html5';
+import dailymotion from './plugins/dailymotion';
 import vimeo from './plugins/vimeo';
 import youtube from './plugins/youtube';
 import { createElement, toggleClass, wrap } from './utils/elements';
@@ -53,6 +54,8 @@ const media = {
       youtube.setup.call(this);
     } else if (this.isVimeo) {
       vimeo.setup.call(this);
+    } else if (this.isDailyMotion) {
+      dailymotion.setup.call(this);
     }
   },
 };
