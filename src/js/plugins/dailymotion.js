@@ -1,6 +1,7 @@
-// ==========================================================================
-// Vimeo plugin
-// ==========================================================================
+// ================================================================================
+// Dailymotion plugin
+// Originally added by akuma06: https://github.com/akuma06/plyr/commits/dailymotion
+// ================================================================================
 
 import ui from '../ui';
 import { createElement, replaceElement, toggleClass } from '../utils/elements';
@@ -99,7 +100,7 @@ const dailymotion = {
         player.embed.ratio = [response.width, response.height];
 
         // Set and show poster
-        ui.setPoster.call(player, response.thumbnail_1080_url).catch(() => {});
+        ui.setPoster.call(player, response.thumbnail_1080_url).catch(() => { });
         setAspectRatio.call(player);
       })
       .catch(() => {
