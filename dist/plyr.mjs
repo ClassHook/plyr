@@ -6697,7 +6697,7 @@ var youtube = {
 
                 player.timers.playing = setInterval(function () {
                   triggerEvent.call(player, player.media, 'timeupdate');
-                }, 50); // Check duration again due to YouTube bug
+                }, 250); // Check duration again due to YouTube bug
                 // https://github.com/sampotts/plyr/issues/374
                 // https://code.google.com/p/gdata-issues/issues/detail?id=8690
 

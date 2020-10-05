@@ -396,7 +396,7 @@ const youtube = {
                 // Poll to get playback progress
                 player.timers.playing = setInterval(() => {
                   triggerEvent.call(player, player.media, 'timeupdate');
-                }, 50);
+                }, 250);
 
                 // Check duration again due to YouTube bug
                 // https://github.com/sampotts/plyr/issues/374
