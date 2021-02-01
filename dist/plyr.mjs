@@ -6592,6 +6592,7 @@ var youtube = {
               var toggle = is$1.boolean(input) ? input : muted;
               muted = toggle;
               instance[toggle ? 'mute' : 'unMute']();
+              instance.setVolume(volume * 100);
               triggerEvent.call(player, player.media, 'volumechange');
             }
           }); // Source

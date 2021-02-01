@@ -1,7 +1,7 @@
 typeof navigator === "object" && (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define('Plyr', factory) :
-  (global = global || self, global.Plyr = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Plyr = factory());
 }(this, (function () { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
@@ -6598,6 +6598,7 @@ typeof navigator === "object" && (function (global, factory) {
                 var toggle = is$1.boolean(input) ? input : muted;
                 muted = toggle;
                 instance[toggle ? 'mute' : 'unMute']();
+                instance.setVolume(volume * 100);
                 triggerEvent.call(player, player.media, 'volumechange');
               }
             }); // Source
