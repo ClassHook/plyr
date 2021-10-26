@@ -14,7 +14,7 @@ export const transitionEndEvent = (() => {
     transition: 'transitionend',
   };
 
-  const type = Object.keys(events).find(event => element.style[event] !== undefined);
+  const type = Object.keys(events).find((event) => element.style[event] !== undefined);
 
   return is.string(type) ? events[type] : false;
 })();
@@ -31,7 +31,7 @@ export function repaint(element, delay) {
 
       // eslint-disable-next-line no-param-reassign
       element.hidden = false;
-    } catch (e) {
+    } catch (_) {
       // Do nothing
     }
   }, delay);
