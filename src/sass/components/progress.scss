@@ -36,7 +36,7 @@ $plyr-progress-offset: $plyr-range-thumb-height;
   border-radius: 100px;
   height: $plyr-range-track-height;
   left: 0;
-  margin-top: calc((#{$plyr-range-track-height} / 2) * -1);
+  margin-top: calc(-1 * (#{$plyr-range-track-height} / 2));
   padding: 0;
   position: absolute;
   top: 50%;
