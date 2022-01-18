@@ -1780,6 +1780,11 @@ const controls = {
         const toggle = (show) => toggleClass(markerTipElement, tipVisible, show);
 
         markerPointElement.addEventListener('mouseenter', () => {
+          // If there isn't a tooltip for the marker, don't show it
+          if (!point.tipHTML && !point.tip) {
+            return;
+          }
+
           markerTipElement.style.left = left;
           if (point.tipHTML) {
             markerTipElement.innerHTML = point.tipHTML;

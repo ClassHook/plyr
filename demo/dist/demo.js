@@ -2697,6 +2697,10 @@ typeof navigator === "object" && (function (Sentry, Shr) {
 
       if (hasDuration) {
         controls.updateTimeDisplay.call(this, this.elements.display.duration, this.duration);
+      }
+
+      if (this.config.markers.enabled) {
+        controls.setMarkers.call(this);
       } // Update the tooltip (if visible)
 
 
@@ -3518,6 +3522,64 @@ typeof navigator === "object" && (function (Sentry, Shr) {
           toggleClass$1(label, this.config.classNames.tooltip, true);
         });
       }
+    },
+
+    setMarkers() {
+      if (this.duration > 0 && !this.elements.markers) {
+        const {
+          points
+        } = this.config.markers;
+        const markersContainerFragment = document.createDocumentFragment();
+        const markersPointsFragment = document.createDocumentFragment();
+        const markerTipElement = createElement('span', {
+          class: this.config.classNames.markers.tip
+        }, '');
+        points.forEach(point => {
+          if (point < 0 || point > this.duration) {
+            return;
+          }
+
+          const markerPointElement = createElement('span', {
+            class: this.config.classNames.markers.points
+          }, '');
+          const left = `${point.time / this.duration * 100}%`;
+          const tipVisible = `${this.config.classNames.markers.tip}--visible`;
+
+          const toggle = show => toggleClass$1(markerTipElement, tipVisible, show);
+
+          markerPointElement.addEventListener('mouseenter', () => {
+            // If there isn't a tooltip for the marker, don't show it
+            if (!point.tipHTML && !point.tip) {
+              return;
+            }
+
+            markerTipElement.style.left = left;
+
+            if (point.tipHTML) {
+              markerTipElement.innerHTML = point.tipHTML;
+            } else {
+              markerTipElement.innerText = point.tip;
+            }
+
+            toggle(true);
+          });
+          markerPointElement.addEventListener('mouseleave', () => {
+            toggle(false);
+          });
+          markerPointElement.addEventListener('click', () => {
+            this.currentTime = point.time;
+          });
+          markerPointElement.style.left = left;
+          markersPointsFragment.appendChild(markerPointElement);
+        });
+        markersContainerFragment.appendChild(markersPointsFragment);
+        markersContainerFragment.appendChild(markerTipElement);
+        this.elements.markers = {
+          points: markersPointsFragment,
+          tip: markerTipElement
+        };
+        this.elements.progress.appendChild(markersContainerFragment);
+      }
     }
 
   };
@@ -4228,6 +4290,10 @@ typeof navigator === "object" && (function (Sentry, Shr) {
         // Scrubbing
         scrubbingContainer: 'plyr__preview-scrubbing',
         scrubbingContainerShown: 'plyr__preview-scrubbing--is-shown'
+      },
+      markers: {
+        points: 'plyr__marker__points',
+        tip: 'plyr__marker__tip'
       }
     },
     // Embed attributes
@@ -4294,6 +4360,11 @@ typeof navigator === "object" && (function (Sentry, Shr) {
       // Hide video information (title and owner) on the start screen
       apimode: 'queryString' // How to encode/decode messages sent from the player. https://developer.dailymotion.com/player/#player-parameters
 
+    },
+    // Markers
+    markers: {
+      enabled: false,
+      points: []
     }
   };
 
@@ -9717,6 +9788,19 @@ typeof navigator === "object" && (function (Sentry, Shr) {
         vimeo: {
           // Prevent Vimeo blocking plyr.io demo site
           referrerPolicy: 'no-referrer'
+        },
+        markers: {
+          enabled: true,
+          points: [{
+            time: 10,
+            tip: 'first marker'
+          }, {
+            time: 40,
+            tip: 'second marker'
+          }, {
+            time: 120,
+            tipHTML: '<strong>third</strong> marker'
+          }]
         }
       }); // Expose for tinkering in the console
 
