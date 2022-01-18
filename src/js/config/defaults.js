@@ -460,7 +460,8 @@ const defaults = {
     'ui-start-screen-info': false, // Hide video information (title and owner) on the start screen
     apimode: 'queryString', // How to encode/decode messages sent from the player. https://developer.dailymotion.com/player/#player-parameters
   },
-    // markers
+
+  // Markers
   markers: {
     enabled: false,
     points: [],
