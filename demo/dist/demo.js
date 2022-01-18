@@ -1,28 +1,5 @@
-typeof navigator === "object" && (function (Sentry, Shr) {
+typeof navigator === "object" && (function () {
   'use strict';
-
-  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-  function _interopNamespace(e) {
-    if (e && e.__esModule) return e;
-    var n = Object.create(null);
-    if (e) {
-      Object.keys(e).forEach(function (k) {
-        if (k !== 'default') {
-          var d = Object.getOwnPropertyDescriptor(e, k);
-          Object.defineProperty(n, k, d.get ? d : {
-            enumerable: true,
-            get: function () { return e[k]; }
-          });
-        }
-      });
-    }
-    n["default"] = e;
-    return Object.freeze(n);
-  }
-
-  var Sentry__namespace = /*#__PURE__*/_interopNamespace(Sentry);
-  var Shr__default = /*#__PURE__*/_interopDefaultLegacy(Shr);
 
   // Setup tab focus
   const container = document.getElementById('container');
@@ -386,14 +363,12 @@ typeof navigator === "object" && (function (Sentry, Shr) {
       var _URL = global.URL;
 
       var URL = function (url, base) {
-        if (typeof url !== 'string') url = String(url);
-        if (base && typeof base !== 'string') base = String(base); // Only create another document if the base is different from current location.
+        if (typeof url !== 'string') url = String(url); // Only create another document if the base is different from current location.
 
         var doc = document,
             baseElement;
 
         if (base && (global.location === void 0 || base !== global.location.href)) {
-          base = base.toLowerCase();
           doc = document.implementation.createHTMLDocument('');
           baseElement = doc.createElement('base');
           baseElement.href = base;
@@ -2697,6 +2672,10 @@ typeof navigator === "object" && (function (Sentry, Shr) {
 
       if (hasDuration) {
         controls.updateTimeDisplay.call(this, this.elements.display.duration, this.duration);
+      }
+
+      if (this.config.markers.enabled) {
+        controls.setMarkers.call(this);
       } // Update the tooltip (if visible)
 
 
@@ -3518,6 +3497,67 @@ typeof navigator === "object" && (function (Sentry, Shr) {
           toggleClass$1(label, this.config.classNames.tooltip, true);
         });
       }
+    },
+
+    setMarkers(forceUpdate) {
+      if (forceUpdate || this.duration > 0 && !this.elements.markers) {
+        const {
+          points
+        } = this.config.markers;
+        const markersContainerFragment = document.createDocumentFragment();
+        const markersPointsFragment = document.createDocumentFragment();
+        const markerTipElement = createElement('span', {
+          class: this.config.classNames.markers.tip
+        }, ''); // Remove existing points
+
+        const existingPoints = this.elements.progress.getElementsByClassName(this.config.classNames.markers.points);
+        removeElement(Array.from(existingPoints));
+        points.forEach(point => {
+          if (point < 0 || point > this.duration) {
+            return;
+          }
+
+          const markerPointElement = createElement('span', {
+            class: this.config.classNames.markers.points
+          }, '');
+          const left = `${point.time / this.duration * 100}%`;
+          const tipVisible = `${this.config.classNames.markers.tip}--visible`;
+
+          const toggle = show => toggleClass$1(markerTipElement, tipVisible, show);
+
+          markerPointElement.addEventListener('mouseenter', () => {
+            // If there isn't a tooltip for the marker, don't show it
+            if (!point.tipHTML && !point.tip) {
+              return;
+            }
+
+            markerTipElement.style.left = left;
+
+            if (point.tipHTML) {
+              markerTipElement.innerHTML = point.tipHTML;
+            } else {
+              markerTipElement.innerText = point.tip;
+            }
+
+            toggle(true);
+          });
+          markerPointElement.addEventListener('mouseleave', () => {
+            toggle(false);
+          });
+          markerPointElement.addEventListener('click', () => {
+            this.currentTime = point.time;
+          });
+          markerPointElement.style.left = left;
+          markersPointsFragment.appendChild(markerPointElement);
+        });
+        markersContainerFragment.appendChild(markersPointsFragment);
+        markersContainerFragment.appendChild(markerTipElement);
+        this.elements.markers = {
+          points: markersPointsFragment,
+          tip: markerTipElement
+        };
+        this.elements.progress.appendChild(markersContainerFragment);
+      }
     }
 
   };
@@ -4228,6 +4268,10 @@ typeof navigator === "object" && (function (Sentry, Shr) {
         // Scrubbing
         scrubbingContainer: 'plyr__preview-scrubbing',
         scrubbingContainerShown: 'plyr__preview-scrubbing--is-shown'
+      },
+      markers: {
+        points: 'plyr__marker__points',
+        tip: 'plyr__marker__tip'
       }
     },
     // Embed attributes
@@ -4294,6 +4338,11 @@ typeof navigator === "object" && (function (Sentry, Shr) {
       // Hide video information (title and owner) on the start screen
       apimode: 'queryString' // How to encode/decode messages sent from the player. https://developer.dailymotion.com/player/#player-parameters
 
+    },
+    // Markers
+    markers: {
+      enabled: false,
+      points: []
     }
   };
 
@@ -9547,6 +9596,29 @@ typeof navigator === "object" && (function (Sentry, Shr) {
 
 
     /**
+     * Get the current player's markers
+     */
+    get markers() {
+      return this.config.markers;
+    }
+    /**
+     * Set the markers on the player
+     * @param {Object} options - Must contain two properties: enabled and points (see docs).
+     */
+
+
+    set markers(options) {
+      this.config.markers = options;
+      controls.setMarkers.call(this, true);
+    }
+    /**
+     * Add event listeners
+     * @param {String} event - Event type
+     * @param {Function} callback - Callback for when event occurs
+     */
+
+
+    /**
      * Check for support
      * @param {String} type - Player type (audio/video)
      * @param {String} provider - Provider (html5/youtube/vimeo/dailymotion)
@@ -9674,24 +9746,17 @@ typeof navigator === "object" && (function (Sentry, Shr) {
   (() => {
     const production = 'plyr.io'; // Sentry for demo site (https://plyr.io) only
 
-    if (window.location.host === production) {
-      Sentry__namespace.init({
-        dsn: 'https://d4ad9866ad834437a4754e23937071e4@sentry.io/305555',
-        whitelistUrls: [production].map(d => new RegExp(`https://(([a-z0-9])+(.))*${d}`))
-      });
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
       const selector = '#player'; // Setup share buttons
-
-      Shr__default["default"].setup('.js-shr', {
-        count: {
-          className: 'button__count'
-        },
-        wrapper: {
-          className: 'button--with-count'
-        }
-      }); // Setup the player
+      // Shr.setup('.js-shr', {
+      //   count: {
+      //     className: 'button__count',
+      //   },
+      //   wrapper: {
+      //     className: 'button--with-count',
+      //   },
+      // });
+      // Setup the player
 
       const player = new Plyr(selector, {
         debug: true,
@@ -9717,6 +9782,19 @@ typeof navigator === "object" && (function (Sentry, Shr) {
         vimeo: {
           // Prevent Vimeo blocking plyr.io demo site
           referrerPolicy: 'no-referrer'
+        },
+        markers: {
+          enabled: true,
+          points: [{
+            time: 10,
+            tip: 'first marker'
+          }, {
+            time: 40,
+            tip: 'second marker'
+          }, {
+            time: 120,
+            tipHTML: '<strong>third</strong> marker'
+          }]
         }
       }); // Expose for tinkering in the console
 
@@ -9795,4 +9873,4 @@ typeof navigator === "object" && (function (Sentry, Shr) {
     });
   })();
 
-})(Sentry, Shr);
+})();

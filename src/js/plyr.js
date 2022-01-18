@@ -1111,6 +1111,22 @@ class Plyr {
   };
 
   /**
+   * Get the current player's markers
+   */
+  get markers() {
+    return this.config.markers;
+  }
+
+  /**
+   * Set the markers on the player
+   * @param {Object} options - Must contain two properties: enabled and points (see docs).
+   */
+  set markers(options) {
+    this.config.markers = options;
+    controls.setMarkers.call(this, true);
+  }
+
+  /**
    * Add event listeners
    * @param {String} event - Event type
    * @param {Function} callback - Callback for when event occurs

@@ -396,6 +396,10 @@ const defaults = {
       scrubbingContainer: 'plyr__preview-scrubbing',
       scrubbingContainerShown: 'plyr__preview-scrubbing--is-shown',
     },
+    markers: {
+      points: 'plyr__marker__points',
+      tip: 'plyr__marker__tip',
+    },
   },
 
   // Embed attributes
@@ -455,6 +459,12 @@ const defaults = {
     'ui-logo': false, // Hide the dailymotion logo
     'ui-start-screen-info': false, // Hide video information (title and owner) on the start screen
     apimode: 'queryString', // How to encode/decode messages sent from the player. https://developer.dailymotion.com/player/#player-parameters
+  },
+
+  // Markers
+  markers: {
+    enabled: false,
+    points: [],
   },
 };
 

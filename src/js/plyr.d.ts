@@ -520,6 +520,11 @@ declare namespace Plyr {
     dailymotion?: object;
 
     /**
+     * Marker Options.
+     */
+    markers?: MarkerOptions;
+
+    /**
      * Preview Thumbnails Options.
      */
     previewThumbnails?: PreviewThumbnailsOptions;
@@ -579,6 +584,17 @@ declare namespace Plyr {
   interface PreviewThumbnailsOptions {
     enabled?: boolean;
     src?: string | string[];
+  }
+
+  interface MarkerOptions {
+    enabled?: boolean;
+    points?: Array<MarkerPoint>;
+  }
+
+  interface MarkerPoint {
+    time: number;
+    tip?: string;
+    tipHTML: string;
   }
 
   export interface Elements {
