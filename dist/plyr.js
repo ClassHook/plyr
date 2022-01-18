@@ -2933,8 +2933,8 @@ typeof navigator === "object" && (function (global, factory) {
       }
     },
 
-    setMarkers() {
-      if (this.duration > 0 && !this.elements.markers) {
+    setMarkers(forceUpdate) {
+      if (forceUpdate || this.duration > 0 && !this.elements.markers) {
         const {
           points
         } = this.config.markers;
@@ -2942,7 +2942,10 @@ typeof navigator === "object" && (function (global, factory) {
         const markersPointsFragment = document.createDocumentFragment();
         const markerTipElement = createElement('span', {
           class: this.config.classNames.markers.tip
-        }, '');
+        }, ''); // Remove existing points
+
+        const existingPoints = this.elements.progress.getElementsByClassName(this.config.classNames.markers.points);
+        removeElement(Array.from(existingPoints));
         points.forEach(point => {
           if (point < 0 || point > this.duration) {
             return;
@@ -9029,6 +9032,29 @@ typeof navigator === "object" && (function (global, factory) {
     /**
      * Trigger the airplay dialog
      * TODO: update player with state, support, enabled
+     */
+
+
+    /**
+     * Get the current player's markers
+     */
+    get markers() {
+      return this.config.markers;
+    }
+    /**
+     * Set the markers on the player
+     * @param {Object} options - Must contain two properties: enabled and points (see docs).
+     */
+
+
+    set markers(options) {
+      this.config.markers = options;
+      controls.setMarkers.call(this, true);
+    }
+    /**
+     * Add event listeners
+     * @param {String} event - Event type
+     * @param {Function} callback - Callback for when event occurs
      */
 
 

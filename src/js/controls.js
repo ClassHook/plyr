@@ -1749,8 +1749,8 @@ const controls = {
       });
     }
   },
-  setMarkers() {
-    if (this.duration > 0 && !this.elements.markers) {
+  setMarkers(forceUpdate) {
+    if (forceUpdate || (this.duration > 0 && !this.elements.markers)) {
       const { points } = this.config.markers;
       const markersContainerFragment = document.createDocumentFragment();
       const markersPointsFragment = document.createDocumentFragment();
@@ -1761,6 +1761,10 @@ const controls = {
         },
         '',
       );
+
+      // Remove existing points
+      const existingPoints = this.elements.progress.getElementsByClassName(this.config.classNames.markers.points);
+      removeElement(Array.from(existingPoints));
 
       points.forEach((point) => {
         if (point < 0 || point > this.duration) {
