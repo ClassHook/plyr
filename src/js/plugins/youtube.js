@@ -39,6 +39,10 @@ function getHost(config) {
     return 'https://www.youtube-nocookie.com';
   }
 
+  if (config.eduPlayer) {
+    return 'https://www.youtubeeducation.com';
+  }
+
   if (window.location.protocol === 'http:') {
     return 'http://www.youtube.com';
   }

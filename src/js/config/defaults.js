@@ -449,6 +449,7 @@ const defaults = {
     // Custom settings from Plyr
     customControls: true,
     noCookie: false, // Whether to use an alternative version of YouTube without cookies
+    eduPlayer: false, // Whether to use the YouTube Player for Education
   },
 
   // DailyMotion plugin
