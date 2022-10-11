@@ -363,12 +363,14 @@ typeof navigator === "object" && (function () {
       var _URL = global.URL;
 
       var URL = function (url, base) {
-        if (typeof url !== 'string') url = String(url); // Only create another document if the base is different from current location.
+        if (typeof url !== 'string') url = String(url);
+        if (base && typeof base !== 'string') base = String(base); // Only create another document if the base is different from current location.
 
         var doc = document,
             baseElement;
 
         if (base && (global.location === void 0 || base !== global.location.href)) {
+          base = base.toLowerCase();
           doc = document.implementation.createHTMLDocument('');
           baseElement = doc.createElement('base');
           baseElement.href = base;
@@ -4321,7 +4323,9 @@ typeof navigator === "object" && (function () {
       // Hide logos as much as possible (they still show one in the corner when paused)
       // Custom settings from Plyr
       customControls: true,
-      noCookie: false // Whether to use an alternative version of YouTube without cookies
+      noCookie: false,
+      // Whether to use an alternative version of YouTube without cookies
+      eduPlayer: false // Whether to use the YouTube Player for Education
 
     },
     // DailyMotion plugin
@@ -4374,7 +4378,7 @@ typeof navigator === "object" && (function () {
 
   function getProviderByUrl(url) {
     // YouTube
-    if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtube-nocookie\.com|youtu\.?be)\/.+$/.test(url)) {
+    if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtube-nocookie\.com|youtubeeducation\.com|youtu\.?be)\/.+$/.test(url)) {
       return providers.youtube;
     } // Vimeo
 
@@ -6710,6 +6714,10 @@ typeof navigator === "object" && (function () {
   function getHost(config) {
     if (config.noCookie) {
       return 'https://www.youtube-nocookie.com';
+    }
+
+    if (config.eduPlayer) {
+      return 'https://www.youtubeeducation.com';
     }
 
     if (window.location.protocol === 'http:') {

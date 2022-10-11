@@ -3755,7 +3755,9 @@ typeof navigator === "object" && (function (global, factory) {
       // Hide logos as much as possible (they still show one in the corner when paused)
       // Custom settings from Plyr
       customControls: true,
-      noCookie: false // Whether to use an alternative version of YouTube without cookies
+      noCookie: false,
+      // Whether to use an alternative version of YouTube without cookies
+      eduPlayer: false // Whether to use the YouTube Player for Education
 
     },
     // DailyMotion plugin
@@ -3808,7 +3810,7 @@ typeof navigator === "object" && (function (global, factory) {
 
   function getProviderByUrl(url) {
     // YouTube
-    if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtube-nocookie\.com|youtu\.?be)\/.+$/.test(url)) {
+    if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtube-nocookie\.com|youtubeeducation\.com|youtu\.?be)\/.+$/.test(url)) {
       return providers.youtube;
     } // Vimeo
 
@@ -6150,6 +6152,10 @@ typeof navigator === "object" && (function (global, factory) {
   function getHost(config) {
     if (config.noCookie) {
       return 'https://www.youtube-nocookie.com';
+    }
+
+    if (config.eduPlayer) {
+      return 'https://www.youtubeeducation.com';
     }
 
     if (window.location.protocol === 'http:') {
