@@ -357,10 +357,10 @@ typeof navigator === "object" && (function (global, factory) {
   // ==========================================================================
   const browser = {
     isIE: Boolean(window.document.documentMode),
-    isEdge: window.navigator.userAgent.includes('Edge'),
-    isWebkit: 'WebkitAppearance' in document.documentElement.style && !/Edge/.test(navigator.userAgent),
-    isIPhone: /(iPhone|iPod)/gi.test(navigator.platform),
-    isIos: navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 || /(iPad|iPhone|iPod)/gi.test(navigator.platform)
+    isEdge: /Edge/g.test(navigator.userAgent),
+    isWebkit: 'WebkitAppearance' in document.documentElement.style && !/Edge/g.test(navigator.userAgent),
+    isIPhone: /iPhone|iPod/gi.test(navigator.userAgent) && navigator.maxTouchPoints > 1,
+    isIos: /iPad|iPhone|iPod/gi.test(navigator.userAgent) && navigator.maxTouchPoints > 1
   };
 
   // ==========================================================================
@@ -2889,7 +2889,9 @@ typeof navigator === "object" && (function (global, factory) {
       if (!is.empty(this.elements.buttons)) {
         const addProperty = button => {
           const className = this.config.classNames.controlPressed;
+          button.setAttribute('aria-pressed', 'false');
           Object.defineProperty(button, 'pressed', {
+            configurable: true,
             enumerable: true,
 
             get() {
@@ -2898,6 +2900,7 @@ typeof navigator === "object" && (function (global, factory) {
 
             set(pressed = false) {
               toggleClass(button, className, pressed);
+              button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
             }
 
           });
@@ -3923,7 +3926,7 @@ typeof navigator === "object" && (function (global, factory) {
 
       _defineProperty$1(this, "trapFocus", event => {
         // Bail if iOS, not active, not the tab key
-        if (browser.isIos || !this.active || event.key !== 'Tab' || event.keyCode !== 9) {
+        if (browser.isIos || !this.active || event.key !== 'Tab') {
           return;
         } // Get the current focused element
 
@@ -7091,6 +7094,22 @@ typeof navigator === "object" && (function (global, factory) {
 
   }
 
+  /**
+   * Returns a number whose value is limited to the given range.
+   *
+   * Example: limit the output of this computation to between 0 and 255
+   * (x * 255).clamp(0, 255)
+   *
+   * @param {Number} input
+   * @param {Number} min The lower boundary of the output range
+   * @param {Number} max The upper boundary of the output range
+   * @returns A number within the bounds of min and max
+   * @type Number
+   */
+  function clamp(input = 0, min = 0, max = 255) {
+    return Math.min(Math.max(input, min), max);
+  }
+
   const parseVtt = vttDataString => {
     const processedList = [];
     const frames = vttDataString.split(/\r\n\r\n|\n\n|\r\r/);
@@ -7163,10 +7182,7 @@ typeof navigator === "object" && (function (global, factory) {
           this.player.elements.display.seekTooltip.hidden = this.enabled;
         }
 
-        if (!this.enabled) {
-          return;
-        }
-
+        if (!this.enabled) return;
         this.getThumbnails().then(() => {
           if (!this.enabled) {
             return;
@@ -7247,18 +7263,10 @@ typeof navigator === "object" && (function (global, factory) {
       });
 
       _defineProperty$1(this, "startMove", event => {
-        if (!this.loaded) {
-          return;
-        }
+        if (!this.loaded) return;
+        if (!is.event(event) || !['touchmove', 'mousemove'].includes(event.type)) return; // Wait until media has a duration
 
-        if (!is.event(event) || !['touchmove', 'mousemove'].includes(event.type)) {
-          return;
-        } // Wait until media has a duration
-
-
-        if (!this.player.media.duration) {
-          return;
-        }
+        if (!this.player.media.duration) return;
 
         if (event.type === 'touchmove') {
           // Calculate seek hover position as approx video seconds
@@ -7402,7 +7410,7 @@ typeof navigator === "object" && (function (global, factory) {
           if (this.loadedImages.includes(thumbnail.frames[thumbNum].text)) {
             qualityIndex = index;
           }
-        }); // Only proceed if either thumbnum or thumbfilename has changed
+        }); // Only proceed if either thumb num or thumbfilename has changed
 
         if (thumbNum !== this.showingThumb) {
           this.showingThumb = thumbNum;
@@ -7593,42 +7601,41 @@ typeof navigator === "object" && (function (global, factory) {
       });
 
       _defineProperty$1(this, "setThumbContainerSizeAndPos", () => {
+        const {
+          imageContainer
+        } = this.elements.thumb;
+
         if (!this.sizeSpecifiedInCSS) {
           const thumbWidth = Math.floor(this.thumbContainerHeight * this.thumbAspectRatio);
-          this.elements.thumb.imageContainer.style.height = `${this.thumbContainerHeight}px`;
-          this.elements.thumb.imageContainer.style.width = `${thumbWidth}px`;
-        } else if (this.elements.thumb.imageContainer.clientHeight > 20 && this.elements.thumb.imageContainer.clientWidth < 20) {
-          const thumbWidth = Math.floor(this.elements.thumb.imageContainer.clientHeight * this.thumbAspectRatio);
-          this.elements.thumb.imageContainer.style.width = `${thumbWidth}px`;
-        } else if (this.elements.thumb.imageContainer.clientHeight < 20 && this.elements.thumb.imageContainer.clientWidth > 20) {
-          const thumbHeight = Math.floor(this.elements.thumb.imageContainer.clientWidth / this.thumbAspectRatio);
-          this.elements.thumb.imageContainer.style.height = `${thumbHeight}px`;
+          imageContainer.style.height = `${this.thumbContainerHeight}px`;
+          imageContainer.style.width = `${thumbWidth}px`;
+        } else if (imageContainer.clientHeight > 20 && imageContainer.clientWidth < 20) {
+          const thumbWidth = Math.floor(imageContainer.clientHeight * this.thumbAspectRatio);
+          imageContainer.style.width = `${thumbWidth}px`;
+        } else if (imageContainer.clientHeight < 20 && imageContainer.clientWidth > 20) {
+          const thumbHeight = Math.floor(imageContainer.clientWidth / this.thumbAspectRatio);
+          imageContainer.style.height = `${thumbHeight}px`;
         }
 
         this.setThumbContainerPos();
       });
 
       _defineProperty$1(this, "setThumbContainerPos", () => {
-        const seekbarRect = this.player.elements.progress.getBoundingClientRect();
-        const plyrRect = this.player.elements.container.getBoundingClientRect();
+        const scrubberRect = this.player.elements.progress.getBoundingClientRect();
+        const containerRect = this.player.elements.container.getBoundingClientRect();
         const {
           container
         } = this.elements.thumb; // Find the lowest and highest desired left-position, so we don't slide out the side of the video container
 
-        const minVal = plyrRect.left - seekbarRect.left + 10;
-        const maxVal = plyrRect.right - seekbarRect.left - container.clientWidth - 10; // Set preview container position to: mousepos, minus seekbar.left, minus half of previewContainer.clientWidth
+        const min = containerRect.left - scrubberRect.left + 10;
+        const max = containerRect.right - scrubberRect.left - container.clientWidth - 10; // Set preview container position to: mousepos, minus seekbar.left, minus half of previewContainer.clientWidth
 
-        let previewPos = this.mousePosX - seekbarRect.left - container.clientWidth / 2;
+        const position = this.mousePosX - scrubberRect.left - container.clientWidth / 2;
+        const clamped = clamp(position, min, max); // Move the popover position
 
-        if (previewPos < minVal) {
-          previewPos = minVal;
-        }
+        container.style.left = `${clamped}px`; // The arrow can follow the cursor
 
-        if (previewPos > maxVal) {
-          previewPos = maxVal;
-        }
-
-        container.style.left = `${previewPos}px`;
+        container.style.setProperty('--preview-arrow-offset', `${position - clamped}px`);
       });
 
       _defineProperty$1(this, "setScrubbingContainerSize", () => {
@@ -7644,10 +7651,7 @@ typeof navigator === "object" && (function (global, factory) {
       });
 
       _defineProperty$1(this, "setImageSizeAndOffset", (previewImage, frame) => {
-        if (!this.usingSprites) {
-          return;
-        } // Find difference between height and preview container height
-
+        if (!this.usingSprites) return; // Find difference between height and preview container height
 
         const multiplier = this.thumbContainerHeight / frame.h; // eslint-disable-next-line no-param-reassign
 
@@ -7678,11 +7682,7 @@ typeof navigator === "object" && (function (global, factory) {
     }
 
     get currentImageContainer() {
-      if (this.mouseDown) {
-        return this.elements.scrubbing.container;
-      }
-
-      return this.elements.thumb.imageContainer;
+      return this.mouseDown ? this.elements.scrubbing.container : this.elements.thumb.imageContainer;
     }
 
     get usingSprites() {
@@ -7717,11 +7717,7 @@ typeof navigator === "object" && (function (global, factory) {
     }
 
     get currentImageElement() {
-      if (this.mouseDown) {
-        return this.currentScrubbingImageElement;
-      }
-
-      return this.currentThumbnailImageElement;
+      return this.mouseDown ? this.currentScrubbingImageElement : this.currentThumbnailImageElement;
     }
 
     set currentImageElement(element) {
@@ -7877,22 +7873,6 @@ typeof navigator === "object" && (function (global, factory) {
     }
 
   };
-
-  /**
-   * Returns a number whose value is limited to the given range.
-   *
-   * Example: limit the output of this computation to between 0 and 255
-   * (x * 255).clamp(0, 255)
-   *
-   * @param {Number} input
-   * @param {Number} min The lower boundary of the output range
-   * @param {Number} max The upper boundary of the output range
-   * @returns A number in the range [min, max]
-   * @type Number
-   */
-  function clamp(input = 0, min = 0, max = 255) {
-    return Math.min(Math.max(input, min), max);
-  }
 
   // TODO: Use a WeakMap for private globals
   // const globals = new WeakMap();
@@ -8612,7 +8592,7 @@ typeof navigator === "object" && (function (global, factory) {
     }
     /**
      * Set playback speed
-     * @param {Number} speed - the speed of playback (0.5-2.0)
+     * @param {Number} input - the speed of playback (0.5-2.0)
      */
 
 
@@ -8910,8 +8890,7 @@ typeof navigator === "object" && (function (global, factory) {
 
 
     set autoplay(input) {
-      const toggle = is.boolean(input) ? input : this.config.autoplay;
-      this.config.autoplay = toggle;
+      this.config.autoplay = is.boolean(input) ? input : this.config.autoplay;
     }
     /**
      * Get the current autoplay state
@@ -8932,7 +8911,7 @@ typeof navigator === "object" && (function (global, factory) {
     }
     /**
      * Set the caption track by index
-     * @param {Number} - Caption index
+     * @param {Number} input - Caption index
      */
 
 
@@ -8955,7 +8934,7 @@ typeof navigator === "object" && (function (global, factory) {
     /**
      * Set the wanted language for captions
      * Since tracks can be added later it won't update the actual caption track until there is a matching track
-     * @param {String} - Two character ISO language code (e.g. EN, FR, PT, etc)
+     * @param {String} input - Two character ISO language code (e.g. EN, FR, PT, etc)
      */
 
 
