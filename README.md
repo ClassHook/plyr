@@ -8,7 +8,7 @@ Plyr is a simple, lightweight, accessible and customizable HTML5, YouTube and Vi
 
 # Features
 
-- 📼 **HTML Video & Audio, YouTube & Vimeo** - support for the major formats
+- 📼 **HTML Video & Audio, YouTube, Vimeo, & Dailymotion** - support for the major formats
 - 💪 **Accessible** - full support for VTT captions and screen readers
 - 🔧 **[Customizable](#html)** - make the player look how you want with the markup you want
 - 😎 **Clean HTML** - uses the _right_ elements. `<input type="range">` for volume and `<progress>` for progress and well, `<button>`s for buttons. There's no
@@ -108,6 +108,29 @@ Or the `<div>` non progressively enhanced method:
 
 ```html
 <div id="player" data-plyr-provider="vimeo" data-plyr-embed-id="76979871"></div>
+```
+
+### Dailymotion
+
+Much the same as YouTube and Vimeo above.
+
+
+
+```html
+<div class="plyr__video-embed" id="player">
+  <iframe
+    src="https://www.dailymotion.com/embed/video/x2lcrwa?api=postMessage&apimode=queryString&autoplay-mute=false&autoplay=false&controls=false&endscreen-enable=false&id=f6d5149dc3a972&mute=false&pubtool=jssdk&queue-autoplay-next=false&queue-enable=false&start=884&subtitles-default=auto&syndication=&ui-logo=false&ui-start-screen-info=false"
+    allowfullscreen
+    allowtransparency
+    allow="autoplay"
+  ></iframe>
+</div>
+```
+
+Or the `<div>` non progressively enhanced method:
+
+```html
+<div id="player" data-plyr-provider="dailymotion" data-plyr-embed-id="x2lcrwa"></div>
 ```
 
 ## JavaScript
