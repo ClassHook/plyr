@@ -1755,7 +1755,7 @@ const controls = {
   },
   setMarkers(forceUpdate) {
     if (forceUpdate || (this.duration > 0 && !this.elements.markers)) {
-      const { points } = this.config.markers;
+      const { points, onClick } = this.config.markers;
       const markersContainerFragment = document.createDocumentFragment();
       const markersPointsFragment = document.createDocumentFragment();
       const markerTipElement = createElement(
@@ -1805,8 +1805,8 @@ const controls = {
           toggle(false);
         });
         markerPointElement.addEventListener('click', () => {
-          if (point.onClick) {
-            return point.onClick(player, point);
+          if (onClick) {
+            return onClick(player, point);
           }
 
           this.currentTime = point.time;

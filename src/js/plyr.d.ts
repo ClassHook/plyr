@@ -589,13 +589,13 @@ declare namespace Plyr {
   interface MarkerOptions {
     enabled?: boolean;
     points?: Array<MarkerPoint>;
+    onClick?: (player: Plyr, point: MarkerPoint);
   }
 
   interface MarkerPoint {
     time: number;
     tip?: string;
     tipHTML: string;
-    onClick?: (player: Plyr, point: MarkerPoint) => void;
   }
 
   export interface Elements {
