@@ -595,6 +595,7 @@ declare namespace Plyr {
     time: number;
     tip?: string;
     tipHTML: string;
+    onClick?: (player: Plyr, point: MarkerPoint) => void;
   }
 
   export interface Elements {

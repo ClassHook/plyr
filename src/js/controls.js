@@ -1805,6 +1805,10 @@ const controls = {
           toggle(false);
         });
         markerPointElement.addEventListener('click', () => {
+          if (point.onClick) {
+            return point.onClick(player, point);
+          }
+
           this.currentTime = point.time;
         });
 
