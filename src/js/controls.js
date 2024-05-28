@@ -1806,7 +1806,7 @@ const controls = {
         });
         markerPointElement.addEventListener('click', () => {
           if (onClick) {
-            return onClick(player, point);
+            return onClick(this, point);
           }
 
           this.currentTime = point.time;

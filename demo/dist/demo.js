@@ -3461,7 +3461,7 @@ typeof navigator === "object" && (function () {
           });
           markerPointElement.addEventListener('click', () => {
             if (onClick) {
-              return onClick(player, point);
+              return onClick(this, point);
             }
             this.currentTime = point.time;
           });
